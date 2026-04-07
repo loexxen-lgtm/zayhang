@@ -103,6 +103,73 @@
 </style>
 </head>
 <body>
+
+<!-- PASSWORD LOCK -->
+<div id="lock-screen" style="
+  position:fixed;inset:0;background:#080e17;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+">
+  <div style="
+    background:#0d1520;border:1px solid rgba(200,155,60,0.25);
+    border-radius:8px;padding:36px 32px;width:340px;max-width:90vw;
+    position:relative;text-align:center;
+  ">
+    <div style="position:absolute;top:0;left:20px;right:20px;height:1px;
+      background:linear-gradient(90deg,transparent,#C89B3C,transparent);">
+    </div>
+    <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:700;
+      color:#C89B3C;letter-spacing:0.12em;margin-bottom:6px;">ADMIN PANEL</div>
+    <div style="font-size:11px;color:#3a5570;letter-spacing:0.18em;
+      text-transform:uppercase;margin-bottom:28px;">Enter Password</div>
+    <input id="pw-input" type="password" placeholder="••••••••••"
+      style="width:100%;background:#080e17;border:1px solid rgba(255,255,255,0.07);
+      border-bottom:1px solid rgba(200,155,60,0.3);border-radius:4px;
+      padding:10px 14px;font-size:14px;color:#F0E6D3;outline:none;
+      font-family:'Inter',sans-serif;margin-bottom:14px;text-align:center;
+      letter-spacing:0.1em;"
+      onkeydown="if(event.key==='Enter')checkPw()"
+    >
+    <button onclick="checkPw()" style="
+      width:100%;background:#C89B3C;border:none;border-radius:4px;
+      padding:10px;font-size:13px;font-weight:700;color:#0d0900;
+      cursor:pointer;letter-spacing:0.06em;font-family:'Inter',sans-serif;
+      transition:background 0.15s;
+    " onmouseover="this.style.background='#d4aa52'"
+       onmouseout="this.style.background='#C89B3C'">
+      ENTER
+    </button>
+    <div id="pw-error" style="color:#f05353;font-size:11px;
+      margin-top:10px;display:none;letter-spacing:0.06em;">
+      Incorrect password
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    // Check if already authenticated this session
+    if(sessionStorage.getItem('zay_auth')==='1'){
+      document.getElementById('lock-screen').style.display='none';
+    }
+    setTimeout(function(){
+      var el=document.getElementById('pw-input');
+      if(el)el.focus();
+    },100);
+  })();
+
+  function checkPw(){
+    var val=document.getElementById('pw-input').value;
+    if(val==='zayloex123@'){
+      sessionStorage.setItem('zay_auth','1');
+      document.getElementById('lock-screen').style.display='none';
+    } else {
+      document.getElementById('pw-error').style.display='block';
+      document.getElementById('pw-input').value='';
+      document.getElementById('pw-input').focus();
+    }
+  }
+</script>
+
 <div class="wrapper">
 
   <header class="site-header">
