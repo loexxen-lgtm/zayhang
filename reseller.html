@@ -126,28 +126,9 @@
   const API_KEY = '$2a$10$8t/llLFgyYG0T8rgpubgO.4RHcSNhVvFjBkoug.tIRIxs3/mD7xwq';
   const BIN_KEY = 'zayhang_bin_id';
   let allReady = [];
-  let binId = '';
+  let binId = '69d47c73856a68218907b9a2'; // hardcoded
 
-  // 1. Try URL param: reseller.html?bin=XXXXX
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlBin = urlParams.get('bin');
-
-  if (urlBin) {
-    binId = urlBin.trim();
-  } else {
-    // 2. Fall back to localStorage
-    const saved = localStorage.getItem(BIN_KEY);
-    if (saved) {
-      binId = saved;
-    } else {
-      // 3. Show manual input
-      document.getElementById('setup-box').style.display = 'flex';
-      document.getElementById('data-table').innerHTML =
-        '<tr><td colspan="6" class="empty">Enter the Bin ID above to load accounts.</td></tr>';
-    }
-  }
-
-  if (binId) loadData();
+  loadData();
 
   function connectManual() {
     const val = document.getElementById('bin-input').value.trim();
