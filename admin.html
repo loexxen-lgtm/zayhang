@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zayhang — Admin</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0e0e10; color: #e5e5e7; min-height: 100vh; padding: 32px 24px; }
+  .header-name { font-size: 36px; font-weight: 800; color: #C89B3C; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1; }
+  .header-sub { font-size: 12px; color: #555; margin-top: 4px; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .admin-badge { display: inline-block; background: #2e1a00; border: 1px solid #C89B3C; color: #C89B3C; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-bottom: 20px; }
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .stat { background: #1a1a1e; border: 1px solid #2e2e35; border-radius: 8px; padding: 8px 16px; font-size: 12px; color: #888; }
+  .stat span { font-weight: 600; color: #C89B3C; font-size: 15px; display: block; margin-top: 2px; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .add-btn { background: #C89B3C; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; color: #0e0e10; cursor: pointer; transition: background 0.15s; }
+  .add-btn:hover { background: #d4aa52; }
+  .sync-btn { background: transparent; border: 1px solid #2e2e35; border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; }
+  .sync-btn:hover { border-color: #C89B3C; color: #C89B3C; }
+  .sync-status { font-size: 11px; margin-top: 6px; }
+  .sync-ok  { color: #4cde80; }
+  .sync-err { color: #f55; }
+  .sync-ing { color: #888; }
+  .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-bar input, .filter-bar select { background: #1a1a1e; border: 1px solid #2e2e35; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #e5e5e7; outline: none; }
+  .filter-bar input { flex: 1; min-width: 160px; }
+  .filter-bar input::placeholder { color: #555; }
+  .filter-bar select option { background: #1a1a1e; }
+  .table-wrap { border: 1px solid #2e2e35; border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: #16161a; }
+  th { text-align: left; padding: 10px 14px; color: #666; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #2e2e35; }
+  td { padding: 11px 14px; border-bottom: 1px solid #1e1e23; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #17171b; }
+  .lvl-badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .lvl-low  { background: #1a2a3a; color: #5ba4f5; }
+  .lvl-mid  { background: #1a2e1a; color: #5bbf6e; }
+  .lvl-high { background: #2e2510; color: #C89B3C; }
+  .lvl-max  { background: #2e1515; color: #f55; }
+  .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .pill-botting { background: #0f2e1a; color: #4cde80; }
+  .pill-idle    { background: #1e1e23; color: #888; }
+  .pill-banned  { background: #2e1010; color: #ff5555; }
+  .pill-ready   { background: #0a2040; color: #5ba4f5; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-on { background: #4cde80; } .dot-off { background: #555; } .dot-banned { background: #ff5555; } .dot-ready { background: #5ba4f5; }
+  .pc-tag { background: #1a1a1e; border: 1px solid #2e2e35; border-radius: 6px; padding: 2px 8px; font-size: 11px; color: #aaa; font-family: 'Consolas', monospace; }
+  .ready-toggle { cursor: pointer; border: none; border-radius: 6px; padding: 4px 12px; font-size: 12px; font-weight: 600; transition: all 0.15s; }
+  .toggle-ready   { background: #0a2040; color: #5ba4f5; border: 1px solid #1a4070; }
+  .toggle-ready:hover { background: #1a4070; }
+  .toggle-notready { background: #1a1a1e; color: #555; border: 1px solid #2e2e35; }
+  .toggle-notready:hover { background: #2a2a30; color: #888; }
+  .ban-timer { font-size: 12px; font-weight: 600; font-family: 'Consolas', monospace; }
+  .ban-active  { color: #ff8855; } .ban-expired { color: #555; font-weight: 400; } .ban-none { color: #333; font-size: 11px; }
+  .action-btn { background: transparent; border: 1px solid #2e2e35; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #aaa; cursor: pointer; margin-right: 4px; transition: all 0.15s; }
+  .action-btn:hover { border-color: #C89B3C; color: #C89B3C; }
+  .del-btn { border-color: #3a1515; color: #c55; }
+  .del-btn:hover { border-color: #f55; color: #f55; background: #1a0808; }
+  .empty { text-align: center; padding: 48px 20px; color: #555; font-size: 14px; }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100; align-items: center; justify-content: center; }
+  .overlay.open { display: flex; }
+  .modal { background: #16161a; border: 1px solid #2e2e35; border-radius: 14px; padding: 24px; width: 360px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 16px; font-weight: 600; color: #C89B3C; margin-bottom: 20px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
+  .field input, .field select { width: 100%; background: #0e0e10; border: 1px solid #2e2e35; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #e5e5e7; outline: none; transition: border-color 0.15s; }
+  .field input:focus, .field select:focus { border-color: #C89B3C; }
+  .field select option { background: #0e0e10; }
+  .field-row { display: flex; gap: 8px; }
+  .field-row .field { flex: 1; }
+  .ban-section { background: #1a1010; border: 1px solid #3a1515; border-radius: 8px; padding: 12px; margin-bottom: 14px; }
+  .ban-section-title { font-size: 11px; color: #c55; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+  .btn-cancel { background: transparent; border: 1px solid #2e2e35; border-radius: 8px; padding: 8px 18px; font-size: 13px; color: #888; cursor: pointer; }
+  .btn-cancel:hover { border-color: #555; color: #ccc; }
+  .btn-save { background: #C89B3C; border: none; border-radius: 8px; padding: 8px 20px; font-size: 13px; font-weight: 600; color: #0e0e10; cursor: pointer; }
+  .btn-save:hover { background: #d4aa52; }
+  .error-msg { color: #f55; font-size: 11px; margin-top: 4px; display: none; }
+  .notes-text { font-size: 11px; color: #666; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  footer { margin-top: 24px; text-align: center; font-size: 11px; color: #2e2e35; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="header-name">zayhang</div>
+    <div class="header-sub">⚔ League Account Tracker</div>
+    <div class="admin-badge">👑 Admin Panel</div>
+    <div class="stats">
+      <div class="stat">Total<span id="s-total">0</span></div>
+      <div class="stat">Botting<span id="s-botting">0</span></div>
+      <div class="stat">Ready<span id="s-ready">0</span></div>
+      <div class="stat">Banned<span id="s-banned">0</span></div>
+      <div class="stat">Avg lvl<span id="s-avg">—</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="btn-row">
+      <button class="add-btn" onclick="openModal()">+ Add Account</button>
+      <button class="sync-btn" onclick="pushToCloud()">☁ Push to Resellers</button>
+    </div>
+    <div class="sync-status" id="sync-status"></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <input type="text" id="search" placeholder="Search username or PC..." oninput="render()">
+  <select id="filter-status" onchange="render()">
+    <option value="">All statuses</option>
+    <option value="botting">Botting</option>
+    <option value="ready">Ready</option>
+    <option value="idle">Idle</option>
+    <option value="banned">Banned</option>
+  </select>
+  <select id="filter-region" onchange="render()">
+    <option value="">All regions</option>
+    <option>EUW</option><option>EUNE</option><option>NA</option><option>KR</option>
+    <option>LAN</option><option>LAS</option><option>OCE</option><option>TR</option>
+    <option>RU</option><option>BR</option>
+  </select>
+  <select id="sort-by" onchange="render()">
+    <option value="date">Sort: Added</option>
+    <option value="lvl-desc">Sort: Level ↓</option>
+    <option value="lvl-asc">Sort: Level ↑</option>
+    <option value="user">Sort: Name</option>
+    <option value="pc">Sort: PC</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Username</th><th>Level</th><th>Status</th><th>Ready?</th><th>PC</th><th>Region</th><th>Ban Timer</th><th>Notes</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="acc-table"></tbody>
+  </table>
+</div>
+
+<footer>Changes are local until you click "Push to Resellers"</footer>
+
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <h2 id="modal-title">Add Account</h2>
+    <div class="field">
+      <label>Username *</label>
+      <input type="text" id="f-user" placeholder="SummonerName">
+      <div class="error-msg" id="err-user">Username is required</div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Level</label><input type="number" id="f-lvl" min="1" max="500" value="1"></div>
+      <div class="field"><label>Region</label>
+        <select id="f-region">
+          <option>EUW</option><option>EUNE</option><option>NA</option><option>KR</option>
+          <option>LAN</option><option>LAS</option><option>OCE</option><option>TR</option><option>RU</option><option>BR</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>PC / Machine</label><input type="text" id="f-pc" placeholder="e.g. PC1"></div>
+    <div class="field"><label>Status</label>
+      <select id="f-status" onchange="toggleBanFields()">
+        <option value="botting">Botting</option>
+        <option value="ready">Ready for sale</option>
+        <option value="idle">Idle</option>
+        <option value="banned">Banned</option>
+      </select>
+    </div>
+    <div class="ban-section" id="ban-section" style="display:none;">
+      <div class="ban-section-title">🚫 Ban Details</div>
+      <div class="field"><label>Ban End Date &amp; Time</label><input type="datetime-local" id="f-ban-end"></div>
+      <div class="field"><label>Ban Reason (optional)</label><input type="text" id="f-ban-reason" placeholder="e.g. botting detected..."></div>
+    </div>
+    <div class="field"><label>Notes (optional)</label><input type="text" id="f-notes" placeholder="e.g. main farm acc..."></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveAccount()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_KEY = '$2a$10$8t/llLFgyYG0T8rgpubgO.4RHcSNhVvFjBkoug.tIRIxs3/mD7xwq';
+  const LOCAL_KEY = 'lol_admin_v1';
+  const BIN_KEY = 'lol_bin_id';
+
+  let accounts = [];
+  let editIdx = -1;
+  let binId = localStorage.getItem(BIN_KEY) || '';
+
+  try { accounts = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'); } catch(e) {}
+
+  function save() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(accounts)); } catch(e) {} }
+
+  function lvlClass(lvl) {
+    if (lvl < 30) return 'lvl-low'; if (lvl < 100) return 'lvl-mid';
+    if (lvl < 200) return 'lvl-high'; return 'lvl-max';
+  }
+
+  function banTimerHtml(a) {
+    if (a.status !== 'banned') return '<span class="ban-none">—</span>';
+    if (!a.banEnd) return '<span class="ban-timer ban-active">🚫 Perm</span>';
+    const diff = new Date(a.banEnd) - new Date();
+    if (diff <= 0) return '<span class="ban-timer ban-expired">✓ Expired</span>';
+    const days = Math.floor(diff/86400000), hours = Math.floor((diff%86400000)/3600000), mins = Math.floor((diff%3600000)/60000);
+    let s = ''; if (days>0) s+=days+'d '; if (hours>0) s+=hours+'h '; s+=mins+'m';
+    return `<span class="ban-timer ban-active" title="${escHtml(a.banReason||'')}">⏱ ${s}</span>`;
+  }
+
+  function toggleReady(i) {
+    accounts[i].ready = !accounts[i].ready;
+    if (accounts[i].ready) accounts[i].status = 'ready';
+    else accounts[i].status = 'idle';
+    save(); render();
+  }
+
+  function render() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const fStat = document.getElementById('filter-status').value;
+    const fReg  = document.getElementById('filter-region').value;
+    const sortBy = document.getElementById('sort-by').value;
+
+    let list = accounts.map((a,i) => ({...a,_i:i})).filter(a => {
+      if (q && !a.user.toLowerCase().includes(q) && !(a.pc||'').toLowerCase().includes(q)) return false;
+      if (fStat && a.status !== fStat) return false;
+      if (fReg  && a.region !== fReg) return false;
+      return true;
+    });
+
+    if (sortBy==='lvl-desc') list.sort((a,b)=>b.lvl-a.lvl);
+    else if (sortBy==='lvl-asc') list.sort((a,b)=>a.lvl-b.lvl);
+    else if (sortBy==='user') list.sort((a,b)=>a.user.localeCompare(b.user));
+    else if (sortBy==='pc') list.sort((a,b)=>(a.pc||'').localeCompare(b.pc||''));
+
+    const tbody = document.getElementById('acc-table');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="10" class="empty">${accounts.length===0?'⚔ No accounts yet.':'No accounts match filters.'}</td></tr>`;
+    } else {
+      tbody.innerHTML = list.map((a,n) => {
+        const sc = a.status==='botting'?'pill-botting':a.status==='banned'?'pill-banned':a.status==='ready'?'pill-ready':'pill-idle';
+        const dc = a.status==='botting'?'dot-on':a.status==='banned'?'dot-banned':a.status==='ready'?'dot-ready':'dot-off';
+        const sl = a.status==='botting'?'Botting':a.status==='banned'?'Banned':a.status==='ready'?'Ready':'Idle';
+        const isReady = a.status === 'ready';
+        return `<tr>
+          <td style="color:#555;font-size:11px;">${n+1}</td>
+          <td style="font-weight:600;">${escHtml(a.user)}</td>
+          <td><span class="lvl-badge ${lvlClass(a.lvl)}">${a.lvl}</span></td>
+          <td><span class="status-pill ${sc}"><span class="dot ${dc}"></span>${sl}</span></td>
+          <td>
+            <button class="ready-toggle ${isReady?'toggle-ready':'toggle-notready'}" onclick="toggleReady(${a._i})">
+              ${isReady ? '✓ Ready' : 'Set Ready'}
+            </button>
+          </td>
+          <td>${a.pc?`<span class="pc-tag">${escHtml(a.pc)}</span>`:'<span style="color:#333">—</span>'}</td>
+          <td style="color:#888;font-size:12px;">${a.region}</td>
+          <td>${banTimerHtml(a)}</td>
+          <td><div class="notes-text" title="${escHtml(a.notes||'')}">${escHtml(a.notes||'—')}</div></td>
+          <td>
+            <button class="action-btn" onclick="openModal(${a._i})">Edit</button>
+            <button class="action-btn del-btn" onclick="del(${a._i})">Del</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    const total=accounts.length, botting=accounts.filter(a=>a.status==='botting').length,
+          ready=accounts.filter(a=>a.status==='ready').length, banned=accounts.filter(a=>a.status==='banned').length,
+          avg=total?Math.round(accounts.reduce((s,a)=>s+a.lvl,0)/total):null;
+    document.getElementById('s-total').textContent=total;
+    document.getElementById('s-botting').textContent=botting;
+    document.getElementById('s-ready').textContent=ready;
+    document.getElementById('s-banned').textContent=banned;
+    document.getElementById('s-avg').textContent=avg??'—';
+  }
+
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function toggleBanFields() {
+    document.getElementById('ban-section').style.display = document.getElementById('f-status').value==='banned'?'block':'none';
+  }
+
+  function openModal(idx) {
+    editIdx = idx!==undefined?idx:-1;
+    document.getElementById('modal-title').textContent = editIdx>=0?'Edit Account':'Add Account';
+    const a = editIdx>=0?accounts[editIdx]:{};
+    document.getElementById('f-user').value=a.user||'';
+    document.getElementById('f-lvl').value=a.lvl||1;
+    document.getElementById('f-pc').value=a.pc||'';
+    document.getElementById('f-region').value=a.region||'EUW';
+    document.getElementById('f-status').value=a.status||'botting';
+    document.getElementById('f-ban-end').value=a.banEnd||'';
+    document.getElementById('f-ban-reason').value=a.banReason||'';
+    document.getElementById('f-notes').value=a.notes||'';
+    document.getElementById('err-user').style.display='none';
+    toggleBanFields();
+    document.getElementById('overlay').classList.add('open');
+    document.getElementById('f-user').focus();
+  }
+
+  function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+  function overlayClick(e) { if (e.target===document.getElementById('overlay')) closeModal(); }
+
+  function saveAccount() {
+    const user=document.getElementById('f-user').value.trim();
+    if (!user) { document.getElementById('err-user').style.display='block'; document.getElementById('f-user').focus(); return; }
+    const status=document.getElementById('f-status').value;
+    const acc = {
+      user, lvl: Math.max(1,Math.min(500,parseInt(document.getElementById('f-lvl').value)||1)),
+      pc: document.getElementById('f-pc').value.trim(), region: document.getElementById('f-region').value,
+      status, ready: status==='ready',
+      banEnd: status==='banned'?document.getElementById('f-ban-end').value:'',
+      banReason: status==='banned'?document.getElementById('f-ban-reason').value.trim():'',
+      notes: document.getElementById('f-notes').value.trim(),
+      added: editIdx>=0?(accounts[editIdx].added||Date.now()):Date.now()
+    };
+    if (editIdx>=0) accounts[editIdx]=acc; else accounts.push(acc);
+    save(); closeModal(); render();
+  }
+
+  function del(i) {
+    if (!confirm(`Delete "${accounts[i].user}"?`)) return;
+    accounts.splice(i,1); save(); render();
+  }
+
+  async function pushToCloud() {
+    const el = document.getElementById('sync-status');
+    el.className='sync-status sync-ing'; el.textContent='Pushing to cloud...';
+    const payload = {
+      accounts: accounts.map(a => ({
+        user: a.user, lvl: a.lvl, region: a.region,
+        status: a.status, ready: a.status==='ready',
+        banEnd: a.banEnd||'', notes: a.notes||'', updatedAt: new Date().toISOString()
+      })),
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      let res, data;
+      if (!binId) {
+        res = await fetch('https://api.jsonbin.io/v3/b', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'X-Master-Key': API_KEY, 'X-Bin-Name':'zayhang-lol', 'X-Bin-Private':'false' },
+          body: JSON.stringify(payload)
+        });
+        data = await res.json();
+        binId = data.metadata.id;
+        localStorage.setItem(BIN_KEY, binId);
+      } else {
+        res = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type':'application/json', 'X-Master-Key': API_KEY },
+          body: JSON.stringify(payload)
+        });
+        data = await res.json();
+      }
+      el.className='sync-status sync-ok';
+      el.textContent='✓ Pushed! Reseller link: jsonbin.io/v3/b/'+binId+'/latest';
+      // Store bin id hint for reseller page
+      localStorage.setItem('lol_bin_hint', binId);
+    } catch(e) {
+      el.className='sync-status sync-err'; el.textContent='✗ Push failed: '+e.message;
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key==='Enter' && document.getElementById('overlay').classList.contains('open')) saveAccount();
+    if (e.key==='Escape') closeModal();
+  });
+
+  render();
+  setInterval(render, 60000);
+</script>
+</body>
+</html>

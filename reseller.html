@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zayhang — Available Accounts</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0e0e10; color: #e5e5e7; min-height: 100vh; padding: 32px 24px; }
+
+  .header-name { font-size: 36px; font-weight: 800; color: #C89B3C; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1; }
+  .header-sub  { font-size: 12px; color: #555; margin-top: 4px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .reseller-badge { display: inline-block; background: #0a2040; border: 1px solid #5ba4f5; color: #5ba4f5; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-top: 6px; margin-bottom: 20px; }
+
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .stat { background: #1a1a1e; border: 1px solid #2e2e35; border-radius: 8px; padding: 8px 16px; font-size: 12px; color: #888; }
+  .stat span { font-weight: 600; color: #5ba4f5; font-size: 15px; display: block; margin-top: 2px; }
+
+  .refresh-btn { background: transparent; border: 1px solid #2e2e35; border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; }
+  .refresh-btn:hover { border-color: #C89B3C; color: #C89B3C; }
+  .last-updated { font-size: 11px; color: #444; margin-top: 6px; text-align: right; }
+
+  .setup-box { background: #1a1a1e; border: 1px solid #2e2e35; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .setup-box label { font-size: 12px; color: #888; white-space: nowrap; }
+  .setup-box input { background: #0e0e10; border: 1px solid #2e2e35; border-radius: 8px; padding: 7px 12px; font-size: 13px; color: #e5e5e7; outline: none; flex: 1; min-width: 200px; font-family: 'Consolas', monospace; }
+  .setup-box input:focus { border-color: #C89B3C; }
+  .setup-box button { background: #C89B3C; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; color: #0e0e10; cursor: pointer; white-space: nowrap; }
+  .setup-box button:hover { background: #d4aa52; }
+
+  .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-bar input, .filter-bar select { background: #1a1a1e; border: 1px solid #2e2e35; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #e5e5e7; outline: none; }
+  .filter-bar input { flex: 1; min-width: 160px; }
+  .filter-bar input::placeholder { color: #555; }
+  .filter-bar select option { background: #1a1a1e; }
+  .filter-bar input:focus, .filter-bar select:focus { border-color: #C89B3C; }
+
+  .table-wrap { border: 1px solid #2e2e35; border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: #16161a; }
+  th { text-align: left; padding: 10px 14px; color: #666; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #2e2e35; }
+  td { padding: 12px 14px; border-bottom: 1px solid #1e1e23; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #17171b; }
+
+  .lvl-badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .lvl-low  { background: #1a2a3a; color: #5ba4f5; }
+  .lvl-mid  { background: #1a2e1a; color: #5bbf6e; }
+  .lvl-high { background: #2e2510; color: #C89B3C; }
+  .lvl-max  { background: #2e1515; color: #f55; }
+
+  .ready-pill { display: inline-flex; align-items: center; gap: 5px; background: #0a2040; color: #5ba4f5; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; }
+  .dot-ready { width: 6px; height: 6px; border-radius: 50%; background: #5ba4f5; display: inline-block; }
+
+  .debug-box { background: #1a1a10; border: 1px solid #3a3510; border-radius: 8px; padding: 12px 16px; color: #C89B3C; font-size: 12px; margin-bottom: 16px; font-family: 'Consolas', monospace; display: none; white-space: pre-wrap; word-break: break-all; }
+  .error-box { background: #1a1010; border: 1px solid #3a1515; border-radius: 8px; padding: 12px 16px; color: #ff8855; font-size: 13px; margin-bottom: 16px; display: none; }
+
+  .empty   { text-align: center; padding: 60px 20px; color: #555; font-size: 14px; line-height: 2; }
+  .loading { text-align: center; padding: 60px; color: #555; font-size: 14px; }
+
+  footer { margin-top: 24px; text-align: center; font-size: 11px; color: #2e2e35; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="header-name">zayhang</div>
+    <div class="header-sub">⚔ Available Accounts</div>
+    <div class="reseller-badge">✓ Ready to Buy</div>
+    <div class="stats">
+      <div class="stat">Available now<span id="s-ready">—</span></div>
+    </div>
+  </div>
+  <div>
+    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    <div class="last-updated" id="last-updated"></div>
+  </div>
+</div>
+
+<!-- shown only if no bin in URL -->
+<div class="setup-box" id="setup-box" style="display:none;">
+  <label>Bin ID:</label>
+  <input type="text" id="bin-input" placeholder="Paste bin ID from zayhang..." />
+  <button onclick="connectManual()">Connect</button>
+</div>
+
+<div class="error-box" id="error-box"></div>
+<div class="debug-box" id="debug-box"></div>
+
+<div class="filter-bar">
+  <input type="text" id="search" placeholder="Search username..." oninput="renderData()">
+  <select id="filter-region" onchange="renderData()">
+    <option value="">All regions</option>
+    <option>EUW</option><option>EUNE</option><option>NA</option><option>KR</option>
+    <option>LAN</option><option>LAS</option><option>OCE</option><option>TR</option>
+    <option>RU</option><option>BR</option>
+  </select>
+  <select id="sort-by" onchange="renderData()">
+    <option value="lvl-desc">Sort: Level ↓</option>
+    <option value="lvl-asc">Sort: Level ↑</option>
+    <option value="user">Sort: Name</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Username</th>
+        <th>Level</th>
+        <th>Region</th>
+        <th>Status</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="data-table">
+      <tr><td colspan="6" class="loading">Loading accounts...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>Read-only view &mdash; data managed by zayhang</footer>
+
+<script>
+  const API_KEY = '$2a$10$8t/llLFgyYG0T8rgpubgO.4RHcSNhVvFjBkoug.tIRIxs3/mD7xwq';
+  const BIN_KEY = 'zayhang_bin_id';
+  let allReady = [];
+  let binId = '';
+
+  // 1. Try URL param: reseller.html?bin=XXXXX
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlBin = urlParams.get('bin');
+
+  if (urlBin) {
+    binId = urlBin.trim();
+  } else {
+    // 2. Fall back to localStorage
+    const saved = localStorage.getItem(BIN_KEY);
+    if (saved) {
+      binId = saved;
+    } else {
+      // 3. Show manual input
+      document.getElementById('setup-box').style.display = 'flex';
+      document.getElementById('data-table').innerHTML =
+        '<tr><td colspan="6" class="empty">Enter the Bin ID above to load accounts.</td></tr>';
+    }
+  }
+
+  if (binId) loadData();
+
+  function connectManual() {
+    const val = document.getElementById('bin-input').value.trim();
+    if (!val) return;
+    binId = val;
+    localStorage.setItem(BIN_KEY, binId);
+    document.getElementById('setup-box').style.display = 'none';
+    loadData();
+  }
+
+  async function loadData() {
+    if (!binId) return;
+    document.getElementById('data-table').innerHTML = '<tr><td colspan="6" class="loading">Loading...</td></tr>';
+    showError('');
+    showDebug('');
+
+    try {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+        headers: { 'X-Access-Key': API_KEY }
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`HTTP ${res.status}: ${txt.slice(0, 200)}`);
+      }
+
+      const data = await res.json();
+      const accounts = data.record?.accounts;
+
+      if (!accounts || !Array.isArray(accounts)) {
+        showDebug(`⚠ No "accounts" array in bin.\nKeys in record: ${Object.keys(data.record || {}).join(', ')}\nFull record: ${JSON.stringify(data.record).slice(0, 300)}`);
+        allReady = [];
+      } else {
+        const statuses = [...new Set(accounts.map(a => a.status))].join(', ');
+        const readyFlags = accounts.map(a => `${a.user}:ready=${a.ready},status=${a.status}`).join(' | ');
+        showDebug(`✓ ${accounts.length} accounts loaded\nStatuses: ${statuses}\nDetail: ${readyFlags}`);
+        allReady = accounts.filter(a => a.ready === true || a.status === 'ready');
+      }
+
+      const updated = data.record?.updatedAt
+        ? new Date(data.record.updatedAt).toLocaleString()
+        : '—';
+      document.getElementById('last-updated').textContent = 'Updated: ' + updated;
+
+      renderData();
+    } catch(e) {
+      showError('Error: ' + e.message);
+      document.getElementById('data-table').innerHTML =
+        '<tr><td colspan="6" class="empty">Could not load accounts.<br><span style="font-size:11px;color:#444;">Check the bin ID or contact zayhang.</span></td></tr>';
+    }
+  }
+
+  function renderData() {
+    const q      = document.getElementById('search').value.toLowerCase();
+    const fReg   = document.getElementById('filter-region').value;
+    const sortBy = document.getElementById('sort-by').value;
+
+    let list = allReady.filter(a => {
+      if (q && !(a.user||'').toLowerCase().includes(q)) return false;
+      if (fReg && a.region !== fReg) return false;
+      return true;
+    });
+
+    if (sortBy === 'lvl-desc') list.sort((a, b) => b.lvl - a.lvl);
+    else if (sortBy === 'lvl-asc') list.sort((a, b) => a.lvl - b.lvl);
+    else if (sortBy === 'user') list.sort((a, b) => (a.user||'').localeCompare(b.user||''));
+
+    document.getElementById('s-ready').textContent = allReady.length;
+
+    const tbody = document.getElementById('data-table');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">${
+        allReady.length === 0
+          ? 'No accounts available right now.<br><span style="font-size:11px;color:#444;">Ask zayhang to push new stock.</span>'
+          : 'No accounts match your filters.'
+      }</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map((a, n) => {
+      const lvlC = a.lvl < 30 ? 'lvl-low' : a.lvl < 100 ? 'lvl-mid' : a.lvl < 200 ? 'lvl-high' : 'lvl-max';
+      return `<tr>
+        <td style="color:#555;font-size:11px;">${n + 1}</td>
+        <td style="font-weight:600;">${esc(a.user)}</td>
+        <td><span class="lvl-badge ${lvlC}">${a.lvl}</span></td>
+        <td style="color:#888;font-size:12px;">${esc(a.region)}</td>
+        <td><span class="ready-pill"><span class="dot-ready"></span>✓ Ready</span></td>
+        <td style="font-size:11px;color:#666;">${esc(a.notes || '—')}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-box');
+    el.style.display = msg ? 'block' : 'none';
+    el.textContent = msg;
+  }
+
+  function showDebug(msg) {
+    const el = document.getElementById('debug-box');
+    el.style.display = msg ? 'block' : 'none';
+    el.textContent = msg;
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  setInterval(() => { if (binId) loadData(); }, 120000);
+</script>
+</body>
+</html>
