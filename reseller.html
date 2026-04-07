@@ -78,12 +78,7 @@
   </div>
 </div>
 
-<!-- shown only if no bin in URL -->
-<div class="setup-box" id="setup-box" style="display:none;">
-  <label>Bin ID:</label>
-  <input type="text" id="bin-input" placeholder="Paste bin ID from zayhang..." />
-  <button onclick="connectManual()">Connect</button>
-</div>
+
 
 <div class="error-box" id="error-box"></div>
 <div class="debug-box" id="debug-box"></div>
@@ -129,15 +124,6 @@
   let binId = '69d47c73856a68218907b9a2'; // hardcoded
 
   loadData();
-
-  function connectManual() {
-    const val = document.getElementById('bin-input').value.trim();
-    if (!val) return;
-    binId = val;
-    localStorage.setItem(BIN_KEY, binId);
-    document.getElementById('setup-box').style.display = 'none';
-    loadData();
-  }
 
   async function loadData() {
     if (!binId) return;
