@@ -108,7 +108,6 @@
     <thead>
       <tr>
         <th>#</th>
-        <th>Username</th>
         <th>Level</th>
         <th>Region</th>
         <th>Status</th>
@@ -179,12 +178,8 @@
       const accounts = data.record?.accounts;
 
       if (!accounts || !Array.isArray(accounts)) {
-        showDebug(`⚠ No "accounts" array in bin.\nKeys in record: ${Object.keys(data.record || {}).join(', ')}\nFull record: ${JSON.stringify(data.record).slice(0, 300)}`);
         allReady = [];
       } else {
-        const statuses = [...new Set(accounts.map(a => a.status))].join(', ');
-        const readyFlags = accounts.map(a => `${a.user}:ready=${a.ready},status=${a.status}`).join(' | ');
-        showDebug(`✓ ${accounts.length} accounts loaded\nStatuses: ${statuses}\nDetail: ${readyFlags}`);
         allReady = accounts.filter(a => a.ready === true || a.status === 'ready');
       }
 
@@ -232,7 +227,6 @@
       const lvlC = a.lvl < 30 ? 'lvl-low' : a.lvl < 100 ? 'lvl-mid' : a.lvl < 200 ? 'lvl-high' : 'lvl-max';
       return `<tr>
         <td style="color:#555;font-size:11px;">${n + 1}</td>
-        <td style="font-weight:600;">${esc(a.user)}</td>
         <td><span class="lvl-badge ${lvlC}">${a.lvl}</span></td>
         <td style="color:#888;font-size:12px;">${esc(a.region)}</td>
         <td><span class="ready-pill"><span class="dot-ready"></span>✓ Ready</span></td>

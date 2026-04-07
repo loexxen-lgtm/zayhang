@@ -215,7 +215,7 @@
     accounts[i].ready = !accounts[i].ready;
     if (accounts[i].ready) accounts[i].status = 'ready';
     else accounts[i].status = 'idle';
-    save(); render();
+    save(); render(); pushToCloud();
   }
 
   function render() {
@@ -318,12 +318,12 @@
       added: editIdx>=0?(accounts[editIdx].added||Date.now()):Date.now()
     };
     if (editIdx>=0) accounts[editIdx]=acc; else accounts.push(acc);
-    save(); closeModal(); render();
+    save(); closeModal(); render(); pushToCloud();
   }
 
   function del(i) {
     if (!confirm(`Delete "${accounts[i].user}"?`)) return;
-    accounts.splice(i,1); save(); render();
+    accounts.splice(i,1); save(); render(); pushToCloud();
   }
 
   async function pushToCloud() {
@@ -357,7 +357,7 @@
         data = await res.json();
       }
       el.className='sync-status sync-ok';
-      el.textContent='✓ Pushed! Reseller link: jsonbin.io/v3/b/'+binId+'/latest';
+      el.textContent='✓ Auto-synced to resellers — ' + new Date().toLocaleTimeString();
       // Store bin id hint for reseller page
       localStorage.setItem('lol_bin_hint', binId);
     } catch(e) {
